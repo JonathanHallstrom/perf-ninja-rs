@@ -48,13 +48,15 @@ pub fn solution(file_name: &str) -> u32 {
     let mut crc: u32 = 0xff_ff_ff_ff;
 
     // Update the CRC32 value character by character
-    let mut buf = [0u8; 1];
+    let mut buf = [0u8; 1 << 14];
     loop {
         let bytes_read = file_stream.read(&mut buf).unwrap();
         if bytes_read == 0 {
             break;
         }
-        update_crc32(&mut crc, buf[0]);
+        for ch in &buf[0..bytes_read] {
+            update_crc32(&mut crc, *ch);
+        }
     }
 
     // Invert the bits

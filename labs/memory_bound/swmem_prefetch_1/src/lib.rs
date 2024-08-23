@@ -1,3 +1,4 @@
+#![feature(core_intrinsics)]
 #[cfg(test)]
 mod tests;
 
@@ -31,6 +32,11 @@ impl HashMapT {
         let bucket = val as usize % self.n_buckets;
         self.m_vector[bucket] != UNUSED
     }
+
+    pub fn prefetch(&self, val: i32) {
+        let bucket = val as usize % self.n_buckets;
+        unsafe { std::intrinsics::prefetch_read_data(std::ptr::addr_of!(self.m_vector[bucket]), 0); }
+    }
 }
 
 fn get_sum_of_digits(mut n: i32) -> i32 {
@@ -45,7 +51,10 @@ fn get_sum_of_digits(mut n: i32) -> i32 {
 pub fn solution(hash_map: &HashMapT, lookups: &[i32]) -> i32 {
     let mut result = 0;
 
-    for &val in lookups {
+    for (i, &val) in lookups.into_iter().enumerate() {
+        if i + 16 < lookups.len() {
+            hash_map.prefetch(lookups[i + 16])
+        }
         if hash_map.find(val) {
             result += get_sum_of_digits(val);
         }

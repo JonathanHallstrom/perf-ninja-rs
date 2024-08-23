@@ -20,10 +20,10 @@ pub const MAX_RANDOM: i32 = 100;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, Default)]
 pub struct S {
-    pub i: i32,
     pub l: i64,
-    pub s: i16,
     pub d: f64,
+    pub i: i32,
+    pub s: i16,
     pub b: bool,
 }
 

@@ -20,8 +20,8 @@ fn filter_vertically(
 ) {
     let rounding = 1 << (shift - 1);
 
+    // Top part of line, partial kernel
     for c in 0..width {
-        // Top part of line, partial kernel
         for r in 0..min(radius, height) {
             // Accumulation
             let mut dot = 0;
@@ -39,9 +39,13 @@ fn filter_vertically(
             let value = dot as f32 / sum as f32 + 0.5;
             output[r * width + c] = value as u8;
         }
+    }
 
-        // Middle part of computations with full kernel
-        for r in radius..(height - radius) {
+    // Middle part of computations with full kernel
+
+    // switching these two loops is the important change
+    for r in radius..(height - radius) {
+        for c in 0..width {
             // Accumulation
             let mut dot = 0;
             for i in 0..(radius + 1 + radius) {
@@ -52,8 +56,10 @@ fn filter_vertically(
             let value: i32 = (dot + rounding) >> shift;
             output[r * width + c] = value as u8;
         }
+    }
 
-        // Bottom part of line, partial kernel
+    // Bottom part of line, partial kernel
+    for c in 0..width {
         for r in std::cmp::max(radius, height - radius)..height {
             // Accumulation
             let mut dot = 0;
